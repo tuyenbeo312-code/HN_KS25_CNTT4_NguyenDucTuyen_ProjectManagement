@@ -123,7 +123,7 @@ def delete_project(db: Session, project_id: int, current_user: UserModel):
 
     return deleted_project_data
 
-
+# thêm member vào dự án
 def add_member_to_project(
     db: Session, project_id: int, current_user: UserModel, data: ProjectMemberCreate
 ):
@@ -169,7 +169,7 @@ def add_member_to_project(
 
     return new_member
 
-
+# xóa member khỏi project
 def remove_project_member(
     db: Session, project_id: int, user_id: int, current_user: UserModel
 ):
@@ -191,7 +191,7 @@ def remove_project_member(
     if not current_member or current_member.role != "OWNER":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Chỉ owner của dự án mới có thể thêm thành viên",
+            detail="Chỉ owner của dự án mới có thể xóa thành viên",
         )
     # kiểm tra user cần xóa có tồn tại không
     user = db.query(UserModel).filter(UserModel.id == user_id).first()
@@ -235,7 +235,7 @@ def remove_project_member(
     db.commit()
     return deleted_member_data
 
-
+# lấy ra danh sách member và role trong dự án
 def get_project_members(db: Session, project_id: int):
     # kiểm tra project có tồn tại không
     project = db.query(Project).filter(Project.id == project_id).first()

@@ -6,6 +6,7 @@ from app.routers.user_routers import router as user_router
 from app.routers.admin_routers import router as admin_router
 from app.routers.auth_routers import router as auth_router
 from app.routers.project_router import router as project_router
+from app.routers.task_routers import router as task_router
 from app.core.exceptions import exception
 from app import models
 
@@ -13,12 +14,13 @@ app = FastAPI()
 
 exception(app)
 
+Base.metadata.create_all(bind=engine)
+
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(admin_router)
 app.include_router(project_router)
-
-Base.metadata.create_all(bind=engine)
+app.include_router(task_router)
 
 
 @app.get("/health")

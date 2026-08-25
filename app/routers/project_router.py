@@ -118,7 +118,7 @@ def delete(
         path=request.url.path,
     )
 
-
+# thêm member cho dự án
 @router.post("/{project_id}/members", status_code=status.HTTP_201_CREATED)
 def add_member(
     project_id: int,
@@ -138,7 +138,7 @@ def add_member(
         path=request.url.path,
     )
 
-
+# xóa member khỏi dự án
 @router.delete("/{project_id}/members/{user_id}")
 def delete_project_member(
     project_id: int,
@@ -158,7 +158,7 @@ def delete_project_member(
         path=request.url.path,
     )
 
-
+# lấy ra danh sách member
 @router.get(
     "/{id}/members",
     response_model=list[ProjectMemberResponse],

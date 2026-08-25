@@ -1,5 +1,5 @@
 from fastapi.exceptions import RequestValidationError
-from fastapi import Request, HTTPException, status, FastAPI
+from fastapi import Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from datetime import datetime

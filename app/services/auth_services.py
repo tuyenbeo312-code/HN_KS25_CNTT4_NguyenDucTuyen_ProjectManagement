@@ -1,7 +1,7 @@
 from jwt import PyJWTError
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from app.core.sercurity import verify_password, get_password_hash, create_access_token
+from app.core.security import verify_password, get_password_hash, create_access_token
 from app.models.user import UserModel
 from app.core.exceptions import create_response
 
@@ -38,7 +38,7 @@ def login_user(db: Session, login_data: dict) -> dict:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Tên đăng nhập hoặc mật khẩu không chính xác",
         )
-    if user.is_active == False:
+    if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Tài khoản của bạn đã bị khóa",
