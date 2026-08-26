@@ -1,21 +1,29 @@
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Request, status, Query
 from sqlalchemy.orm import Session
 from app.schemas.user_schema import UserResponse
-from app.dependencies.auth import get_current_user
+from app.dependencies.auth import get_current_user, get_current_admin
 from app.models.user import UserModel
 from app.db.database import get_db
 from app.core.exceptions import create_response
-from app.dependencies.auth import get_current_admin
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(
+    prefix="/users",
+    tags=["Users"],
+)
 
 
-@router.get("/me")
+# GET /users/me
+@router.get(
+    "/me",
+    status_code=status.HTTP_200_OK,
+    summary="Lấy thông tin người dùng hiện tại",
+    description=("""Lấy thông tin tài khoản của người dùng đang đăng nhập. 
+        Yêu cầu người dùng phải được xác thực bằng access token."""),
+)
 def read_current_user(
-    request: Request, current_user: UserModel = Depends(get_current_user)
+    request: Request,
+    current_user: UserModel = Depends(get_current_user),
 ):
-    """Lấy thông tin user hiện tại."""
-
     return create_response(
         status_code=status.HTTP_200_OK,
         message="Lấy thông tin người dùng thành công",
@@ -25,31 +33,43 @@ def read_current_user(
 
 
 # GET /users
-@router.get("")
+@router.get(
+    "",
+    status_code=status.HTTP_200_OK,
+    summary="Lấy danh sách người dùng",
+    description=("""Admin lấy danh sách người dùng trong hệ thống. 
+        Tài khoản có role ADMIN sẽ không được trả về. 
+        Có thể tìm kiếm theo họ tên hoặc email và lọc theo trạng thái hoạt động."""),
+)
 def get_users(
     request: Request,
-    search: str | None,
-    is_active: bool | None,
-    admin: UserModel = Depends(get_current_admin),
+    search: str | None = Query(
+        None,
+        description="Tìm kiếm người dùng theo họ tên hoặc email.",
+    ),
+    is_active: bool | None = Query(
+        None,
+        description="Lọc người dùng theo trạng thái hoạt động.",
+    ),
+    _: UserModel = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
-    """Admin lấy danh sách user, ko lấy tài khoản ADMIN"""
     query = db.query(UserModel).filter(UserModel.role != "ADMIN")
-    # Search theo tên hoặc email
+    # Tìm kiếm theo tên hoặc email
     if search:
         keyword = f"%{search}%"
         query = query.filter(
             (UserModel.full_name.ilike(keyword)) | (UserModel.email.ilike(keyword))
         )
-    # Lọc theo trạng thái
+    # Lọc theo trạng thái hoạt động
     if is_active is not None:
         query = query.filter(UserModel.is_active == is_active)
     users = query.all()
     data = [UserResponse.model_validate(user) for user in users]
+
     return create_response(
         status_code=status.HTTP_200_OK,
         message="Lấy danh sách người dùng thành công",
         data=data,
         path=request.url.path,
     )
-

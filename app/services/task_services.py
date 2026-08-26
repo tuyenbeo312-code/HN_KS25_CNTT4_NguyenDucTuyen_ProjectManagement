@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status as http_status
 from sqlalchemy.orm import Session
 from app.models.project import Project
 from app.models.task import Task
@@ -13,7 +13,7 @@ def create_task(db: Session, project_id: int, task_data: TaskCreate, current_use
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Project không tồn tại"
+            status_code=http_status.HTTP_404_NOT_FOUND, detail="Project không tồn tại"
         )
     # kiểm tra current user có phải member của project không
     member = (
@@ -26,7 +26,7 @@ def create_task(db: Session, project_id: int, task_data: TaskCreate, current_use
     )
     if not member:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=http_status.HTTP_403_FORBIDDEN,
             detail="Bạn không phải thành viên của project",
         )
     if task_data.assignee_id is not None:
@@ -41,7 +41,7 @@ def create_task(db: Session, project_id: int, task_data: TaskCreate, current_use
 
         if not assignee:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=http_status.HTTP_400_BAD_REQUEST,
                 detail="Assignee phải là thành viên của project",
             )
     # tạo task
@@ -91,7 +91,7 @@ def get_project_tasks(
     )
     if not member:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=http_status.HTTP_403_FORBIDDEN,
             detail="Bạn không có quyền truy cập project này",
         )
     query = db.query(Task).filter(Task.project_id == project_id)
@@ -132,7 +132,7 @@ def get_task_by_id(db: Session, task_id: int, current_user):
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Task không tồn tại!"
+            status_code=http_status.HTTP_404_NOT_FOUND, detail="Task không tồn tại!"
         )
     # kiểm tra current_user có thuộc project của task không
     member = (
@@ -145,7 +145,7 @@ def get_task_by_id(db: Session, task_id: int, current_user):
     )
     if not member:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=http_status.HTTP_403_FORBIDDEN,
             detail="Bạn không phải thành viên của project này!",
         )
 
@@ -163,12 +163,12 @@ def update_task(
     project = db.query(Project).filter(Project.id == task.project_id).first()
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Project không tồn tại"
+            status_code=http_status.HTTP_404_NOT_FOUND, detail="Project không tồn tại"
         )
     # kiểm tra current user có phải owner project không
     if project.owner_id != current_user.id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=http_status.HTTP_403_FORBIDDEN,
             detail="Chỉ OWNER mới được cập nhật task",
         )
     # chỉ lấy những trường được gửi lên
@@ -185,7 +185,7 @@ def update_task(
         )
         if not member:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=http_status.HTTP_400_BAD_REQUEST,
                 detail="Assignee phải là thành viên của project",
             )
     # cập nhật những trường đó vào task
@@ -202,18 +202,18 @@ def delete_task(db: Session, task_id: int, current_user: UserModel):
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Task không tồn tại"
+            status_code=http_status.HTTP_404_NOT_FOUND, detail="Task không tồn tại"
         )
     # kiểm tra project tồn tại
     project = db.query(Project).filter(Project.id == task.project_id).first()
     if not project:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Project không tồn tại"
+            status_code=http_status.HTTP_404_NOT_FOUND, detail="Project không tồn tại"
         )
     # chỉ OWNER của project mới được xóa task
     if project.owner_id != current_user.id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=http_status.HTTP_403_FORBIDDEN,
             detail="Chỉ OWNER mới có quyền xóa task",
         )
     deleted_task = {
