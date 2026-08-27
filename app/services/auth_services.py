@@ -39,7 +39,7 @@ def login_user(db: Session, login_data: dict) -> dict:
         )
     if not user.is_active:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Tài khoản của bạn đã bị khóa",
         )
     access_token = create_access_token({"sub": user.email, "role": user.role})

@@ -1,17 +1,17 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserRegisterRequest(BaseModel):
-    full_name: str
-    password: str
+    full_name: str = Field(..., min_length=1)
+    password: str = Field(..., min_length=8, pattern="[@,#,$,%,!]")
     email: EmailStr
     role: Optional[str] = "user"
 
 
 class UserLoginRequest(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(..., min_length=6)
 
 
 class TokenResponse(BaseModel):

@@ -20,9 +20,6 @@ ALGORITHM = settings.ALGORITHM
 EXPIRE_MINUTES = 60
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
-
-
 def verify_password(plain: str, hashed: str) -> bool:
     """So khớp mật khẩu thô người dùng gửi lên với mật khẩu đã băm trong DB."""
     # plain.encode() và hashed.encode() chuyển chuỗi string sang dạng bytes theo yêu cầu của bcrypt

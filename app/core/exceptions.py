@@ -34,7 +34,10 @@ def exception(app):
         return create_response(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             message="Dữ liệu không hợp lệ!",
-            errors=exc.errors(),
+            errors={
+                "error_type": exc.errors()[0]["type"],
+                "error_msg": exc.errors()[0]["msg"],
+            },
             path=request.url.path,
         )
 
